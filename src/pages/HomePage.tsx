@@ -1,145 +1,99 @@
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Search, MapPin, Clock, Users } from "lucide-react";
-import heroImage from "@/assets/hero-image.jpg";
+import { useState, useEffect } from "react";
+import InstagramHeader from "@/components/InstagramHeader";
+import InstagramStories from "@/components/InstagramStories";
+import InstagramPost from "@/components/InstagramPost";
+import PostModal from "@/components/PostModal";
 
 const HomePage = () => {
+  const [isPostModalOpen, setIsPostModalOpen] = useState(false);
+
+  // Mock data for posts
+  const posts = [
+    {
+      id: "1",
+      type: "lost" as const,
+      itemName: "iPhone 13 Pro Max",
+      description: "Lost my phone yesterday evening around the campus library. It has a clear case with some stickers on it. Please contact me if you find it!",
+      location: "Main Library",
+      date: "2024-01-15",
+      imageUrl: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&h=400&fit=crop",
+      userName: "sarah_jones",
+      userAvatar: "https://images.unsplash.com/photo-1494790108755-2616b612b372?w=100&h=100&fit=crop",
+      category: "Electronics"
+    },
+    {
+      id: "2", 
+      type: "found" as const,
+      itemName: "Red Backpack",
+      description: "Found this backpack in the student cafeteria today morning. It has some notebooks and a water bottle inside. Owner can contact me to claim it.",
+      location: "Student Cafeteria", 
+      date: "2024-01-16",
+      imageUrl: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&h=400&fit=crop",
+      userName: "mike_chen",
+      userAvatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop",
+      category: "Bags"
+    },
+    {
+      id: "3",
+      type: "lost" as const,
+      itemName: "Silver Watch",
+      description: "My grandfather's vintage watch. Has sentimental value. Lost somewhere between the gym and parking lot B. Reward offered!",
+      location: "Between Gym & Parking B",
+      date: "2024-01-14", 
+      userName: "alex_rivera",
+      userAvatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop",
+      category: "Jewelry"
+    }
+  ];
+
+  // Handle swipe to post (simplified - in real app would use touch events)
+  useEffect(() => {
+    let startX = 0;
+    
+    const handleTouchStart = (e: TouchEvent) => {
+      startX = e.touches[0].clientX;
+    };
+
+    const handleTouchEnd = (e: TouchEvent) => {
+      const endX = e.changedTouches[0].clientX;
+      const diff = startX - endX;
+      
+      // Left swipe (swipe distance > 100px)
+      if (diff > 100) {
+        setIsPostModalOpen(true);
+      }
+    };
+
+    document.addEventListener('touchstart', handleTouchStart);
+    document.addEventListener('touchend', handleTouchEnd);
+
+    return () => {
+      document.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, []);
+
   return (
-    <div className="min-h-screen">
-      {/* Hero Section */}
-      <section className="relative py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-6">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight">
-                Lost & Found
-                <span className="block text-primary">University Campus</span>
-              </h1>
-              <p className="text-xl text-muted-foreground leading-relaxed max-w-lg">
-                Reuniting students with their belongings. Report lost items, browse found items, 
-                and help build a more connected campus community.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Link to="/browse">
-                  <Button variant="hero" size="lg" className="w-full sm:w-auto">
-                    <Search className="w-5 h-5 mr-2" />
-                    Browse Items
-                  </Button>
-                </Link>
-                <Link to="/report-lost">
-                  <Button variant="outline" size="lg" className="w-full sm:w-auto">
-                    Report Lost Item
-                  </Button>
-                </Link>
-              </div>
-            </div>
-            <div className="relative">
-              <img
-                src={heroImage}
-                alt="Students helping each other find lost items on campus"
-                className="rounded-2xl shadow-strong w-full h-auto"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
+    <div className="min-h-screen bg-background">
+      <InstagramHeader />
+      <InstagramStories />
+      
+      {/* Posts Feed */}
+      <main className="max-w-md mx-auto">
+        {posts.map((post) => (
+          <InstagramPost key={post.id} {...post} />
+        ))}
+      </main>
 
-      {/* How It Works */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-muted/50">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              How It Works
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Simple steps to reunite you with your lost belongings
-            </p>
-          </div>
+      {/* Swipe hint */}
+      <div className="fixed bottom-4 left-4 bg-background/80 backdrop-blur-sm border border-border rounded-lg px-3 py-2 text-xs text-muted-foreground">
+        ← Swipe left to post
+      </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            <Card className="bg-gradient-card shadow-soft hover:shadow-medium transition-all duration-300 hover:-translate-y-1">
-              <CardContent className="p-8 text-center">
-                <div className="w-16 h-16 bg-gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-6">
-                  <Search className="w-8 h-8 text-primary-foreground" />
-                </div>
-                <h3 className="text-xl font-semibold text-foreground mb-3">Lost Something?</h3>
-                <p className="text-muted-foreground">
-                  Report your lost item with details and photos. We'll help others identify it.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gradient-card shadow-soft hover:shadow-medium transition-all duration-300 hover:-translate-y-1">
-              <CardContent className="p-8 text-center">
-                <div className="w-16 h-16 bg-gradient-secondary rounded-2xl flex items-center justify-center mx-auto mb-6">
-                  <MapPin className="w-8 h-8 text-secondary-foreground" />
-                </div>
-                <h3 className="text-xl font-semibold text-foreground mb-3">Found Something?</h3>
-                <p className="text-muted-foreground">
-                  Report found items with location details to help owners reclaim them quickly.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gradient-card shadow-soft hover:shadow-medium transition-all duration-300 hover:-translate-y-1">
-              <CardContent className="p-8 text-center">
-                <div className="w-16 h-16 bg-accent rounded-2xl flex items-center justify-center mx-auto mb-6">
-                  <Users className="w-8 h-8 text-accent-foreground" />
-                </div>
-                <h3 className="text-xl font-semibold text-foreground mb-3">Get Connected</h3>
-                <p className="text-muted-foreground">
-                  Connect with fellow students to arrange safe returns and build community.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* Quick Stats */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="grid md:grid-cols-3 gap-8 text-center">
-            <div className="space-y-2">
-              <div className="text-4xl font-bold text-primary">150+</div>
-              <div className="text-muted-foreground">Items Returned</div>
-            </div>
-            <div className="space-y-2">
-              <div className="text-4xl font-bold text-secondary">50+</div>
-              <div className="text-muted-foreground">Active Users</div>
-            </div>
-            <div className="space-y-2">
-              <div className="text-4xl font-bold text-accent">24hrs</div>
-              <div className="text-muted-foreground">Average Return Time</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-hero">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-primary-foreground mb-4">
-            Ready to Help Your Campus Community?
-          </h2>
-          <p className="text-xl text-primary-foreground/90 mb-8 max-w-2xl mx-auto">
-            Join hundreds of students making our campus a more connected place.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/report-lost">
-              <Button variant="outline" size="lg" className="w-full sm:w-auto bg-primary-foreground text-primary hover:bg-primary-foreground/90">
-                Report Lost Item
-              </Button>
-            </Link>
-            <Link to="/report-found">
-              <Button variant="secondary" size="lg" className="w-full sm:w-auto">
-                Report Found Item
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </section>
+      <PostModal 
+        isOpen={isPostModalOpen}
+        onClose={() => setIsPostModalOpen(false)}
+      />
     </div>
   );
 };

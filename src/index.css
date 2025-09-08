@@ -141,3 +141,13 @@
     transition: var(--transition-bounce);
   }
 }
+
+/* Custom scrollbar for stories */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
